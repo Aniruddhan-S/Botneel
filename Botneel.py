@@ -1,12 +1,10 @@
 import discord
 from discord.ext import commands
+from discord.utils import get
 import random
-import wikipedia
-from PyDictionary import PyDictionary
 import requests
 
 
-dictionary = PyDictionary()
 client = commands.Bot(command_prefix='>>')
 TOKEN = 'NzUwNzUyNDg0NDYwMzMxMDY4.X0_GvA.WkUj86I6x3xmmNF0xmCF5qs7CRI'
 client.remove_command('help')
@@ -30,7 +28,7 @@ async def on_command_error(ctx, error):
         await ctx.send("`Please pass the required argument`")
 
 
-# commands
+# chat commands
 
 @client.command(aliases=['Hi', 'HI', 'hey', 'Hey'])
 async def hi(ctx):
@@ -51,14 +49,9 @@ async def cmds(ctx):
     em = discord.Embed(colour=discord.Colour.blue())
 
     em.set_author(name="Bot Commands")
-    em.add_field(name='>>hi', value='sends Hey', inline=False)
     em.add_field(name='>>clear', value='clears the messages(no. of messages required)', inline=False)
     em.add_field(name='>>q', value='sends a random yes or no answer', inline=False)
-    em.add_field(name='>>search', value='searches wikipedia', inline=False)
     em.add_field(name='>>c_flip', value='flips a coin', inline=False)
-    em.add_field(name='>>define', value='searches the meaning')
-    em.add_field(name='>>synonym', value='searches the synonym')
-    em.add_field(name='>>antonym', value='searches the antonym')
     em.add_field(name='>>spam', value='spams the chat with whatever word you send', inline=False)
     em.add_field(name='>>tellme', value='helps you decide on things', inline=False)
     em.add_field(name='>>nick', value='changes nickname')
@@ -67,29 +60,9 @@ async def cmds(ctx):
     await ctx.send(embed=em)
 
 @client.command()
-async def search(ctx, word):
-    definition = wikipedia.summary(word, sentences=3)
-    await ctx.send(definition)
-
-@client.command()
 async def c_flip(ctx):
     results = ['Heads', 'Tails']
     await ctx.send(random.choice(results))
-
-@client.command()
-async def define(ctx, word):
-    meaning = dictionary.meaning(word)
-    await ctx.send(meaning)
-
-@client.command()
-async def synonym(ctx, word):
-    syn = dictionary.synonym(word)
-    await ctx.send(syn)
-
-@client.command()
-async def antonym(ctx, word):
-    ant = dictionary.antonym(word)
-    await ctx.send(ant)
 
 @client.command()
 async def spam(ctx, *,word):
@@ -161,6 +134,25 @@ async def role(ctx, role_name, role_color):
     guild = ctx.guild
     await guild.create_role(name=role_name, colour=discord.Colour(role_color))
     await ctx.send("Role successfully created")
-   
+
+
+#voice commands
+
+@client.command(pass_context=True)
+async def join(ctx):
+    if (ctx.author.voice):
+        channel = ctx.message.author.voice.channel
+        await channel.connect()
+    else:
+        await ctx.send("You have to be in a voice channel to run this command")
+
+@client.command(pass_context=True)
+async def leave(ctx):
+    if(ctx.voice_client):
+        await ctx.voice_client.disconnect()
+    else:
+        await ctx.send("I am not in a voice channel")
+
+
 
 client.run(TOKEN)
