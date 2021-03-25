@@ -14,7 +14,8 @@ client.remove_command('help')
 
 @client.event
 async def on_ready():
-    print('\nBotneel is online\n\n')
+    print('\nBotneel is online\n')
+    await client.change_presence(activity=discord.Game('>>cmds'))
 
 
 # error handling
@@ -41,7 +42,7 @@ async def q(ctx):
     reply = ['Yes', 'No']
     await ctx.send(random.choice(reply))
 
-@client.command()
+@client.command(aliases=['cls'])
 async def clear(ctx, amount: int):
     await ctx.channel.purge(limit=amount)
 
@@ -60,7 +61,7 @@ async def cmds(ctx):
     em.add_field(name='>>antonym', value='searches the antonym')
     em.add_field(name='>>spam', value='spams the chat with whatever word you send', inline=False)
     em.add_field(name='>>tellme', value='helps you decide on things', inline=False)
-    em.add_field(name='>>nick', value='changes nickname', inline=False)
+    em.add_field(name='>>nick', value='changes nickname')
     em.add_field(name='>>rnick', value='resets nickname')
 
     await ctx.send(embed=em)
@@ -93,7 +94,7 @@ async def antonym(ctx, word):
 @client.command()
 async def spam(ctx, *,word):
     spam_msg = ['you got spammed.....', 'LMAO', 'LOL', 'haha', 'spamming feels good!', 'I will annoy everyone lol']
-    for i in range(25):
+    for _ in range(25):
         await ctx.send(word)
     await ctx.send(random.choice(spam_msg))
 
@@ -153,5 +154,13 @@ async def nick(ctx, member: discord.Member, *, nickname):
 async def rnick(ctx, member: discord.Member):
     await member.edit(nick = None)
     await ctx.send('Reset complete')
+
+@client.command()
+@commands.has_permissions(kick_members = True)
+async def role(ctx, role_name, role_color):
+    guild = ctx.guild
+    await guild.create_role(name=role_name, colour=discord.Colour(role_color))
+    await ctx.send("Role successfully created")
+   
 
 client.run(TOKEN)
