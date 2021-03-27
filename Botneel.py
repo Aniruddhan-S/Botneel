@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 import random
-import requests
 
 
 client = commands.Bot(command_prefix='>>')
@@ -14,7 +13,7 @@ client.remove_command('help')
 async def on_ready():
     print('\nBotneel is online')
     print('-----------------\n')
-    await client.change_presence(activity=discord.Game('>>cmds'))
+    await client.change_presence(activity=discord.Game('>>help'))
 
 
 # error handling
@@ -46,7 +45,7 @@ async def clear(ctx, amount: int):
     await ctx.channel.purge(limit=amount)
 
 @client.command()
-async def cmds(ctx):
+async def help(ctx):
     em = discord.Embed(colour=discord.Colour.blue())
 
     em.set_author(name="Bot Commands")
@@ -82,7 +81,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
 
 @client.command()
 @commands.has_permissions(kick_members = True)
-async def mute(ctx, member: discord.Member, *, reason=None):
+async def smute(ctx, member: discord.Member, *, reason=None):
     guild = ctx.guild
     mutedRole = get(guild.roles, name="Muted")
 
@@ -142,13 +141,6 @@ async def nick(ctx, member: discord.Member, *, nickname):
 async def rnick(ctx, member: discord.Member):
     await member.edit(nick = None)
     await ctx.send('Reset complete')
-
-@client.command()
-@commands.has_permissions(kick_members = True)
-async def role(ctx, role_name, role_color):
-    guild = ctx.guild
-    await guild.create_role(name=role_name, colour=discord.Colour(role_color))
-    await ctx.send("Role successfully created")
 
 
 #voice commands
