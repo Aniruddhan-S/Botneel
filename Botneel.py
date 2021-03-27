@@ -46,7 +46,7 @@ async def clear(ctx, amount: int):
 
 @client.command()
 async def help(ctx):
-    em = discord.Embed(colour=discord.Colour.blue())
+    em = discord.Embed(colour=discord.Colour.lighter_grey())
 
     em.set_author(name="Bot Commands")
     em.add_field(name='>>clear', value='clears the messages(no. of messages required)', inline=False)
@@ -81,29 +81,79 @@ async def kick(ctx, member: discord.Member, *, reason=None):
 
 @client.command()
 @commands.has_permissions(kick_members = True)
-async def smute(ctx, member: discord.Member, *, reason=None):
+async def mute(ctx, member: discord.Member, choice,  *, reason=None):
     guild = ctx.guild
-    mutedRole = get(guild.roles, name="Muted")
+    if choice == "server":
+        smutedRole = get(guild.roles, name="ServerMuted")
 
-    if not mutedRole:
-        mutedRole = await guild.create_role(name="Muted")
+        if not smutedRole:
+            smutedRole = await guild.create_role(name="ServerMuted")
 
-        for channel in guild.channels:
-            await channel.set_permissions(mutedRole, speak=False, send_messages=False)
+            for channel in guild.channels:
+                await channel.set_permissions(smutedRole, speak=False, send_messages=False)
 
-    await member.add_roles(mutedRole, reason=reason)
-    await ctx.send(f"Muted {member.mention} \nReason: {reason}")
-    await member.send(f"You were muted in the server {guild.name} for reason {reason}")
+        await member.add_roles(smutedRole, reason=reason)
+        await ctx.send(f"Server Muted {member.mention} \nReason: {reason}")
+        await member.send(f"You were server muted in the server {guild.name} for reason {reason}")
+    
+    elif choice == "text":
+        tmutedRole = get(guild.roles, name="TextMuted")
+
+        if not tmutedRole:
+            tmutedRole = await guild.create_role(name="TextMuted")
+
+            for channel in guild.channels:
+                await channel.set_permissions(tmutedRole, send_messages=False)
+
+        await member.add_roles(tmutedRole, reason=reason)
+        await ctx.send(f"Text Muted {member.mention} \nReason: {reason}")
+        await member.send(f"You were text muted in the server {guild.name} for reason {reason}")
+
+    elif choice == "voice":
+        vmutedRole = get(guild.roles, name="VoiceMuted")
+
+        if not vmutedRole:
+            vmutedRole = await guild.create_role(name="VoiceMuted")
+
+            for channel in guild.channels:
+                await channel.set_permissions(vmutedRole, speak=False)
+
+        await member.add_roles(vmutedRole, reason=reason)
+        await ctx.send(f"Voice Muted {member.mention} \nReason: {reason}")
+        await member.send(f"You were voice muted in the server {guild.name} for reason {reason}")
+
+    else:
+        await ctx.send("`Please specify where to be muted`")
 
 @client.command()
 @commands.has_permissions(kick_members = True)
 async def unmute(ctx, member: discord.Member):
     guild = ctx.guild
-    mutedRole = get(ctx.guild.roles, name="Muted")
+    smutedRole =  get(guild.roles, name="ServerMuted")
+    tmutedRole =  get(guild.roles, name="TextMuted")
+    vmutedRole =  get(guild.roles, name="VoiceMuted")
 
-    await member.remove_roles(mutedRole)
-    await ctx.send(f"Unmuted {member.mention}")
-    await member.send(f"You were unmuted in the server {guild.name}")
+    await member.remove_roles(smutedRole)
+    await member.remove_roles(tmutedRole)
+    await member.remove_roles(vmutedRole)
+    await ctx.send(f"Unmuted {member.mention}") 
+
+
+    # if(get(ctx.guild.roles, name="ServerMuted")):
+    #     await member.remove_roles(smutedRole)
+    #     # await ctx.send(f"Server Unmuted {member.mention}")
+    #     # await member.send(f"You were server unmuted in the server {guild.name}")
+
+    # elif(get(ctx.guild.roles, name="TextMuted")):
+    #     await member.remove_roles(tmutedRole)
+    #     # await ctx.send(f"Text Unmuted {member.mention}")
+    #     # await member.send(f"You were text unmuted in the server {guild.name}")
+    
+    # elif(get(ctx.guild.roles, name="VoiceMuted")):
+    #     await member.remove_roles(vmutedRole)
+    #     # await ctx.send(f"Voice Unmuted {member.mention}")
+    #     # await member.send(f"You were voice unmuted in the server {guild.name}")
+    # await ctx.send(f"Unmuted {member.mention}")
 
 @client.command(aliases = ['tm', 'm8', 'magic8', 'tbh'])
 async def tellme(ctx):
