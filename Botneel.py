@@ -133,27 +133,16 @@ async def unmute(ctx, member: discord.Member):
     tmutedRole =  get(guild.roles, name="TextMuted")
     vmutedRole =  get(guild.roles, name="VoiceMuted")
 
-    await member.remove_roles(smutedRole)
-    await member.remove_roles(tmutedRole)
-    await member.remove_roles(vmutedRole)
-    await ctx.send(f"Unmuted {member.mention}") 
+    if(get(ctx.guild.roles, name="ServerMuted")):
+        await member.remove_roles(smutedRole)
 
-
-    # if(get(ctx.guild.roles, name="ServerMuted")):
-    #     await member.remove_roles(smutedRole)
-    #     # await ctx.send(f"Server Unmuted {member.mention}")
-    #     # await member.send(f"You were server unmuted in the server {guild.name}")
-
-    # elif(get(ctx.guild.roles, name="TextMuted")):
-    #     await member.remove_roles(tmutedRole)
-    #     # await ctx.send(f"Text Unmuted {member.mention}")
-    #     # await member.send(f"You were text unmuted in the server {guild.name}")
+    if(get(ctx.guild.roles, name="TextMuted")):
+        await member.remove_roles(tmutedRole)
     
-    # elif(get(ctx.guild.roles, name="VoiceMuted")):
-    #     await member.remove_roles(vmutedRole)
-    #     # await ctx.send(f"Voice Unmuted {member.mention}")
-    #     # await member.send(f"You were voice unmuted in the server {guild.name}")
-    # await ctx.send(f"Unmuted {member.mention}")
+    if(get(ctx.guild.roles, name="VoiceMuted")):
+        await member.remove_roles(vmutedRole)
+
+    await ctx.send(f"Unmuted {member.mention}")
 
 @client.command(aliases = ['tm', 'm8', 'magic8', 'tbh'])
 async def tellme(ctx):
