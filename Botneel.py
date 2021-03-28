@@ -225,7 +225,7 @@ async def pull(ctx, member: discord.Member):
 
 @client.command(pass_context=True)
 async def push(ctx, member: discord.Member, *, vc_name=None):
-    for channel in ctx.guild.channels:
+    for channel in ctx.guild.voice_channels:
         if channel.name == vc_name:
             await member.move_to(channel)
 
