@@ -28,7 +28,17 @@ async def on_command_error(ctx, error):
         await ctx.send("`Please pass the required argument`")
 
 
-# chat commands
+# help command embed
+
+@client.command()
+async def help(ctx):
+    em = discord.Embed(colour=discord.Colour.lighter_grey())
+
+    em.add_field(name='Sorry!', value='I am currently being updated, so i will not be able to display what i can do :(')
+    await ctx.send(embed=em)
+
+
+# text commands
 
 @client.command(aliases=['Hi', 'HI', 'hey', 'Hey'])
 async def hi(ctx):
@@ -41,30 +51,37 @@ async def q(ctx):
     await ctx.send(random.choice(reply))
 
 @client.command(aliases=['cls'])
-async def clear(ctx, amount: int):
-    await ctx.channel.purge(limit=amount)
+async def clear(ctx, amount=1):
+    if amount <= 30:
+        await ctx.channel.purge(limit=amount+1)
+    else:
+        await ctx.send("`You can't delete more than 30 messages at a time`")
 
-@client.command()
-async def help(ctx):
-    em = discord.Embed(colour=discord.Colour.lighter_grey())
-
-    em.set_author(name="Bot Commands")
-    em.add_field(name='>>clear', value='clears the messages(no. of messages required)', inline=False)
-    em.add_field(name='>>q', value='sends a random yes or no answer', inline=False)
-    em.add_field(name='>>c_flip', value='flips a coin', inline=False)
-    em.add_field(name='>>spam', value='spams the chat with whatever word you send', inline=False)
-    em.add_field(name='>>tellme', value='helps you decide on things', inline=False)
-    em.add_field(name='>>nick', value='changes nickname')
-    em.add_field(name='>>rnick', value='resets nickname')
-    em.add_field(name='>>mute', value='server mutes both in text and voice')
-    em.add_field(name='>>unmute', value='server unmutes in text and voice')
-
-    await ctx.send(embed=em)
-
-@client.command()
-async def c_flip(ctx):
-    results = ['Heads', 'Tails']
-    await ctx.send(random.choice(results))
+@client.command(aliases = ['tm', 'm8', 'magic8', 'tbh'])
+async def tellme(ctx):
+    reply = [
+                "As I see it, yes.",
+                "Ask again later.",
+                "Better not tell you now.",
+                "Cannot predict now.",
+                "Concentrate and ask again.",
+                "Don’t count on it.",
+                "It is certain.",
+                "It is decidedly so.",
+                "Most likely.",
+                "My reply is no.",
+                "My sources say no.",
+                "Outlook not so good.",
+                "Outlook good.",
+                "Reply hazy, try again.",
+                "Signs point to yes.",
+                "Very doubtful.",
+                "Without a doubt.",
+                "Yes.",
+                "Yes – definitely.",
+                "You may rely on it."
+            ]
+    await ctx.send(random.choice(reply))
 
 @client.command()
 async def spam(ctx, *,word):
@@ -73,11 +90,33 @@ async def spam(ctx, *,word):
         await ctx.send(word)
     await ctx.send(random.choice(spam_msg))
 
+
+# text commands - Moderation
+
 @client.command()
 @commands.has_permissions(kick_members = True)
 async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick()
     await ctx.send(f"{member} has been kicked out")
+
+@client.command()
+@commands.has_permissions(ban_members = True)
+async def ban(ctx, member: discord.Member):
+    await member.ban()
+    await ctx.send(f"{member} has been banned from the server")
+
+@client.command()
+@commands.has_permissions(ban_members = True)
+async def unban(ctx, *, member):
+    bannedUsers = await ctx.guild.bans()
+    name, discriminator = member.split("#")
+
+    for ban in bannedUsers:
+        user = ban.user
+        if((user.name, user.discriminator) == (name, discriminator)):
+            await ctx.guild.unban(user)
+            await ctx.send(f"{member} has been unbanned")
+            return
 
 @client.command()
 @commands.has_permissions(kick_members = True)
@@ -144,39 +183,16 @@ async def unmute(ctx, member: discord.Member):
 
     await ctx.send(f"Unmuted {member.mention}")
 
-@client.command(aliases = ['tm', 'm8', 'magic8', 'tbh'])
-async def tellme(ctx):
-    reply = [
-                "As I see it, yes.",
-                "Ask again later.",
-                "Better not tell you now.",
-                "Cannot predict now.",
-                "Concentrate and ask again.",
-                "Don’t count on it.",
-                "It is certain.",
-                "It is decidedly so.",
-                "Most likely.",
-                "My reply is no.",
-                "My sources say no.",
-                "Outlook not so good.",
-                "Outlook good.",
-                "Reply hazy, try again.",
-                "Signs point to yes.",
-                "Very doubtful.",
-                "Without a doubt.",
-                "Yes.",
-                "Yes – definitely.",
-                "You may rely on it."
-            ]
-    await ctx.send(random.choice(reply))
 
 @client.command()
+@commands.has_permissions(change_nickname = True)
 async def nick(ctx, member: discord.Member, *, nickname):
     reply = ['Done', 'Nickname changed']
     await member.edit(nick = nickname)
     await ctx.send(random.choice(reply))
 
 @client.command(aliases = ['resetnick', 'Resetnick'])
+@commands.has_permissions(change_nickname = True)
 async def rnick(ctx, member: discord.Member):
     await member.edit(nick = None)
     await ctx.send('Reset complete')
@@ -198,6 +214,20 @@ async def leave(ctx):
         await ctx.voice_client.disconnect()
     else:
         await ctx.send("I am not in a voice channel")
+
+@client.command(pass_context=True)
+async def pull(ctx, member: discord.Member):
+    if(ctx.author.voice):
+        channel = ctx.message.author.voice.channel
+        await member.move_to(channel)
+    else:
+        await ctx.send("`You have to be in a voice channel to run this command`")
+
+@client.command(pass_context=True)
+async def push(ctx, member: discord.Member, *, vc_name=None):
+    for channel in ctx.guild.channels:
+        if channel.name == vc_name:
+            await member.move_to(channel)
 
 
 
