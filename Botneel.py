@@ -25,7 +25,7 @@ async def on_command_error(ctx, error):
 
 
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("`Please pass the required argument`")
+        await ctx.send("`Command incomplete`")
 
 
 # help command embed
@@ -205,6 +205,7 @@ async def join(ctx):
     if (ctx.author.voice):
         channel = ctx.message.author.voice.channel
         await channel.connect()
+        await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
     else:
         await ctx.send("You have to be in a voice channel to run this command")
 
