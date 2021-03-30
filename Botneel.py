@@ -32,17 +32,22 @@ async def on_command_error(ctx, error):
 
 @client.command()
 async def help(ctx):
-    em = discord.Embed(colour=discord.Colour.lighter_grey())
+    async with ctx.typing():
+        em = discord.Embed(colour=discord.Colour.light_grey(), title="Botneel Commands", description="The parameters enclosed in the < > brackets are required and the ones in the ( ) are optional")
 
-    em.add_field(name='Sorry!', value='I am currently being updated, so i will not be able to display what i can do :(')
-    await ctx.send(embed=em)
+        em.add_field(name='General Text Commands', value='>>hi\n>>q <question>\n>>clear <value>\n>>tellme <question>\n>>spam <word/line>', inline=False)
+        em.add_field(name='Moderator Commands', value='>>kick <@person> (reason)\n>>ban <@person> (reason)\n>>unban <name#number> (reason)\n>>mute <@person> <server/text/voice> (reason)\n>>unmute <@person>\n>>nick <@person> <nickname>\n>>rnick <@person>', inline=False)
+        em.add_field(name='Voice Commands', value='>>join\n>>leave\n>>pull <@person>\n>>push <@person> <vc name>', inline=False)
+
+        await ctx.send(embed=em)
 
 
 # text commands
 
-@client.command(aliases=['Hi', 'HI', 'hey', 'Hey'])
+@client.command(aliases=['hey'])
 async def hi(ctx):
-    reply = ['Hi', 'Hey', 'Hello peeps', "Yeah I'm online", 'Wassup!', "God! You're annoying", 'Stop disturbing me', 'Let me be at peace please', "I'm busy, what do you want?"]
+    reply = ['Hi', 'Hey', 'Hello peeps', "Yeah I'm here", 'Wassup!', "God! You're annoying",
+            'Stop disturbing me','Let me be at peace please', "I'm busy, what do you want?"]
     await ctx.send(random.choice(reply))
 
 @client.command(aliases=['Q'])
@@ -60,26 +65,26 @@ async def clear(ctx, amount=1):
 @client.command(aliases = ['tm', 'm8', 'magic8', 'tbh'])
 async def tellme(ctx):
     reply = [
-                "As I see it, yes.",
-                "Ask again later.",
-                "Better not tell you now.",
-                "Cannot predict now.",
-                "Concentrate and ask again.",
-                "Don’t count on it.",
-                "It is certain.",
-                "It is decidedly so.",
-                "Most likely.",
-                "My reply is no.",
-                "My sources say no.",
-                "Outlook not so good.",
-                "Outlook good.",
-                "Reply hazy, try again.",
-                "Signs point to yes.",
-                "Very doubtful.",
-                "Without a doubt.",
-                "Yes.",
-                "Yes – definitely.",
-                "You may rely on it."
+                    "As I see it, yes.",
+                    "Ask again later.",
+                    "Better not tell you now.",
+                    "Cannot predict now.",
+                    "Concentrate and ask again.",
+                    "Don’t count on it.",
+                    "It is certain.",
+                    "It is decidedly so.",
+                    "Most likely.",
+                    "My reply is no.",
+                    "My sources say no.",
+                    "Outlook not so good.",
+                    "Outlook good.",
+                    "Reply hazy, try again.",
+                    "Signs point to yes.",
+                    "Very doubtful.",
+                    "Without a doubt.",
+                    "Yes.",
+                    "Yes – definitely.",
+                    "You may rely on it."
             ]
     await ctx.send(random.choice(reply))
 
@@ -96,106 +101,113 @@ async def spam(ctx, *,word):
 @client.command()
 @commands.has_permissions(kick_members = True)
 async def kick(ctx, member: discord.Member, *, reason=None):
-    await member.kick()
-    await ctx.send(f"{member} has been kicked out")
+    async with ctx.typing():
+        await member.kick()
+        await ctx.send(f"{member} has been kicked out")
 
 @client.command()
 @commands.has_permissions(ban_members = True)
 async def ban(ctx, member: discord.Member):
-    await member.ban()
-    await ctx.send(f"{member} has been banned from the server")
+    async with ctx.typing():
+        await member.ban()
+        await ctx.send(f"{member} has been banned from the server")
 
 @client.command()
 @commands.has_permissions(ban_members = True)
 async def unban(ctx, *, member):
-    bannedUsers = await ctx.guild.bans()
-    name, discriminator = member.split("#")
+    async with ctx.typing():
+        bannedUsers = await ctx.guild.bans()
+        name, discriminator = member.split("#")
 
-    for ban in bannedUsers:
-        user = ban.user
-        if((user.name, user.discriminator) == (name, discriminator)):
-            await ctx.guild.unban(user)
-            await ctx.send(f"{member} has been unbanned")
-            return
+        for ban in bannedUsers:
+            user = ban.user
+            if((user.name, user.discriminator) == (name, discriminator)):
+                await ctx.guild.unban(user)
+                await ctx.send(f"{member} has been unbanned")
+                return
 
 @client.command()
 @commands.has_permissions(kick_members = True)
 async def mute(ctx, member: discord.Member, choice,  *, reason=None):
-    guild = ctx.guild
-    if choice == "server":
-        smutedRole = get(guild.roles, name="ServerMuted")
+    async with ctx.typing():
+        guild = ctx.guild
+        if choice == "server":
+            smutedRole = get(guild.roles, name="ServerMuted")
 
-        if not smutedRole:
-            smutedRole = await guild.create_role(name="ServerMuted")
+            if not smutedRole:
+                smutedRole = await guild.create_role(name="ServerMuted")
 
-            for channel in guild.channels:
-                await channel.set_permissions(smutedRole, speak=False, send_messages=False)
+                for channel in guild.channels:
+                    await channel.set_permissions(smutedRole, speak=False, send_messages=False)
 
-        await member.add_roles(smutedRole, reason=reason)
-        await ctx.send(f"Server Muted {member.mention} \nReason: {reason}")
-        await member.send(f"You were server muted in the server {guild.name} for reason {reason}")
-    
-    elif choice == "text":
-        tmutedRole = get(guild.roles, name="TextMuted")
+            await member.add_roles(smutedRole, reason=reason)
+            await ctx.send(f"Server Muted {member.mention} \nReason: {reason}")
+            await member.send(f"You were server muted in the server {guild.name} for reason {reason}")
+        
+        elif choice == "text":
+            tmutedRole = get(guild.roles, name="TextMuted")
 
-        if not tmutedRole:
-            tmutedRole = await guild.create_role(name="TextMuted")
+            if not tmutedRole:
+                tmutedRole = await guild.create_role(name="TextMuted")
 
-            for channel in guild.channels:
-                await channel.set_permissions(tmutedRole, send_messages=False)
+                for channel in guild.channels:
+                    await channel.set_permissions(tmutedRole, send_messages=False)
 
-        await member.add_roles(tmutedRole, reason=reason)
-        await ctx.send(f"Text Muted {member.mention} \nReason: {reason}")
-        await member.send(f"You were text muted in the server {guild.name} for reason {reason}")
+            await member.add_roles(tmutedRole, reason=reason)
+            await ctx.send(f"Text Muted {member.mention} \nReason: {reason}")
+            await member.send(f"You were text muted in the server {guild.name} for reason {reason}")
 
-    elif choice == "voice":
-        vmutedRole = get(guild.roles, name="VoiceMuted")
+        elif choice == "voice":
+            vmutedRole = get(guild.roles, name="VoiceMuted")
 
-        if not vmutedRole:
-            vmutedRole = await guild.create_role(name="VoiceMuted")
+            if not vmutedRole:
+                vmutedRole = await guild.create_role(name="VoiceMuted")
 
-            for channel in guild.channels:
-                await channel.set_permissions(vmutedRole, speak=False)
+                for channel in guild.channels:
+                    await channel.set_permissions(vmutedRole, speak=False)
 
-        await member.add_roles(vmutedRole, reason=reason)
-        await ctx.send(f"Voice Muted {member.mention} \nReason: {reason}")
-        await member.send(f"You were voice muted in the server {guild.name} for reason {reason}")
+            await member.add_roles(vmutedRole, reason=reason)
+            await ctx.send(f"Voice Muted {member.mention} \nReason: {reason}")
+            await member.send(f"You were voice muted in the server {guild.name} for reason {reason}")
 
-    else:
-        await ctx.send("`Please specify where to be muted`")
+        else:
+            await ctx.send("`Please specify where to be muted`")
 
 @client.command()
 @commands.has_permissions(kick_members = True)
 async def unmute(ctx, member: discord.Member):
-    guild = ctx.guild
-    smutedRole =  get(guild.roles, name="ServerMuted")
-    tmutedRole =  get(guild.roles, name="TextMuted")
-    vmutedRole =  get(guild.roles, name="VoiceMuted")
+    async with ctx.typing():
+        guild = ctx.guild
+        smutedRole =  get(guild.roles, name="ServerMuted")
+        tmutedRole =  get(guild.roles, name="TextMuted")
+        vmutedRole =  get(guild.roles, name="VoiceMuted")
 
-    if(get(ctx.guild.roles, name="ServerMuted")):
-        await member.remove_roles(smutedRole)
+        if(get(ctx.guild.roles, name="ServerMuted")):
+            await member.remove_roles(smutedRole)
 
-    if(get(ctx.guild.roles, name="TextMuted")):
-        await member.remove_roles(tmutedRole)
-    
-    if(get(ctx.guild.roles, name="VoiceMuted")):
-        await member.remove_roles(vmutedRole)
+        if(get(ctx.guild.roles, name="TextMuted")):
+            await member.remove_roles(tmutedRole)
+        
+        if(get(ctx.guild.roles, name="VoiceMuted")):
+            await member.remove_roles(vmutedRole)
 
-    await ctx.send(f"Unmuted {member.mention}")
+        await ctx.send(f"Unmuted {member.mention}")
 
 
 @client.command()
 @commands.has_permissions(change_nickname = True)
 async def nick(ctx, member: discord.Member, *, nickname):
-    reply = ['Done', 'Nickname changed']
-    await member.edit(nick = nickname)
-    await ctx.send(random.choice(reply))
+    async with ctx.typing():
+        reply = ['Done', 'Nickname changed']
+        await member.edit(nick = nickname)
+        await ctx.send(random.choice(reply))
 
 @client.command(aliases = ['resetnick', 'Resetnick'])
 @commands.has_permissions(change_nickname = True)
 async def rnick(ctx, member: discord.Member):
-    await member.edit(nick = None)
-    await ctx.send('Reset complete')
+    async with ctx.typing():
+        await member.edit(nick = None)
+        await ctx.send('Reset complete')
 
 
 #voice commands
