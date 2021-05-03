@@ -32,14 +32,13 @@ async def on_command_error(ctx, error):
 
 @client.command()
 async def help(ctx):
-    async with ctx.typing():
-        em = discord.Embed(colour=discord.Colour.light_grey(), title="Botneel Commands", description="The parameters enclosed in the < > brackets are required and the ones in the ( ) are optional")
+    em = discord.Embed(colour=discord.Colour.light_grey(), title="Botneel Commands", description="The parameters enclosed in the < > brackets are required and the ones in the ( ) are optional")
 
-        em.add_field(name='General Text Commands', value='>>hi\n>>q <question>\n>>clear <value>\n>>tellme <question>\n>>spam <word/line>', inline=False)
-        em.add_field(name='Moderator Commands', value='>>kick <@person> (reason)\n>>ban <@person> (reason)\n>>unban <name#number> (reason)\n>>mute <@person> <server/text/voice> (reason)\n>>unmute <@person>\n>>nick <@person> <nickname>\n>>rnick <@person>', inline=False)
-        em.add_field(name='Voice Commands', value='>>join\n>>leave\n>>pull <@person>\n>>push <@person> <vc name>', inline=False)
+    em.add_field(name='General Text Commands', value='>>hi\n>>q <question>\n>>clear <value>\n>>tellme <question>\n>>spam <word/line>', inline=False)
+    em.add_field(name='Moderator Commands', value='>>kick <@person> (reason)\n>>ban <@person> (reason)\n>>unban <name#number> (reason)\n>>mute <@person> <server/text/voice> (reason)\n>>unmute <@person>\n>>nick <@person> <nickname>\n>>rnick <@person>', inline=False)
+    em.add_field(name='Voice Commands', value='>>join\n>>leave\n>>pull <@person>\n>>push <@person> <vc name>', inline=False)
 
-        await ctx.send(embed=em)
+    await ctx.send(embed=em)
 
 
 # text commands
