@@ -2,10 +2,13 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 import random
+import json
 
+f = open('config.json', 'r')
+token = json.load(f)
 
 client = commands.Bot(command_prefix='>>')
-TOKEN = 'NzUwNzUyNDg0NDYwMzMxMDY4.X0_GvA.WkUj86I6x3xmmNF0xmCF5qs7CRI'
+TOKEN = token["token"]
 client.remove_command('help')
 
 
@@ -209,23 +212,7 @@ async def rnick(ctx, member: discord.Member):
         await ctx.send('Reset complete')
 
 
-#voice commands
-
-@client.command(pass_context=True)
-async def join(ctx):
-    if (ctx.author.voice):
-        channel = ctx.message.author.voice.channel
-        await channel.connect()
-        await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
-    else:
-        await ctx.send("You have to be in a voice channel to run this command")
-
-@client.command(pass_context=True)
-async def leave(ctx):
-    if(ctx.voice_client):
-        await ctx.voice_client.disconnect()
-    else:
-        await ctx.send("I am not in a voice channel")
+# voice commands
 
 @client.command(pass_context=True)
 async def pull(ctx, member: discord.Member):
