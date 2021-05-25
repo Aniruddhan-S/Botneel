@@ -58,6 +58,7 @@ async def q(ctx):
     await ctx.send(random.choice(reply))
 
 @client.command(aliases=['cls'])
+@commands.has_permissions(kick_members = True)
 async def clear(ctx, amount=1):
     if amount <= 30:
         await ctx.channel.purge(limit=amount+1)
@@ -91,6 +92,7 @@ async def tellme(ctx):
     await ctx.send(random.choice(reply))
 
 @client.command()
+@commands.has_permissions(kick_members = True)
 async def spam(ctx, *,word):
     spam_msg = ['you got spammed.....', 'LMAO', 'LOL', 'haha', 'spamming feels good!', 'I will annoy everyone lol']
     for _ in range(25):
@@ -215,6 +217,7 @@ async def rnick(ctx, member: discord.Member):
 # voice commands
 
 @client.command(pass_context=True)
+@commands.has_permissions(kick_members = True)
 async def pull(ctx, member: discord.Member):
     if(ctx.author.voice):
         channel = ctx.message.author.voice.channel
@@ -223,6 +226,7 @@ async def pull(ctx, member: discord.Member):
         await ctx.send("`You have to be in a voice channel to run this command`")
 
 @client.command(pass_context=True)
+@commands.has_permissions(kick_members = True)
 async def push(ctx, member: discord.Member, *, vc_name=None):
     for channel in ctx.guild.voice_channels:
         if channel.name == vc_name:
