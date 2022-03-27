@@ -5,6 +5,8 @@ from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import random
 from nltk.stem.porter import PorterStemmer
+import openai
+
 stemmer = PorterStemmer()
 
 def tokenize(sentence):
@@ -25,7 +27,7 @@ def bag_of_words(tokenized_sentence, all_words):
 
 import json
 
-with open("content/intents.json", 'r', encoding='utf-8') as f:
+with open("src\content\intents.json", 'r', encoding='utf-8') as f:
     intents = json.load(f)
 
 
@@ -160,12 +162,10 @@ model_state = data["model_state"]
 model = NeuralNet(input_size, hidden_size, output_size).to(device)
 model.load_state_dict(model_state)
 model.eval()
-def chat_here():
+def chat_here(sent):
     bot_name = "iris"
 
-    sentence = input("You: ")
-
-    sentence = tokenize(sentence)
+    sentence = tokenize(sent)
     X = bag_of_words(sentence, all_words)
     X = X.reshape(1, X.shape[0])
     X = torch.from_numpy(X).to(device)
@@ -182,6 +182,19 @@ def chat_here():
             if tag == intent["tag"]:
                 print(f"{bot_name}: {random.choice(intent['responses'])}")
     else:
-        print("I do not understand...")
+        openai.api_key = "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"
 
-chat_here()
+        response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=sent,
+        temperature=0,
+        max_tokens=60,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0
+        )
+
+        for i in response['choices']:
+            print(i['text'])
+
+chat_here(input("tell me what to do:-  "))
