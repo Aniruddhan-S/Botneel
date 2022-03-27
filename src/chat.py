@@ -5,6 +5,9 @@ from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import random
 from nltk.stem.porter import PorterStemmer
+import json
+import openai
+
 stemmer = PorterStemmer()
 
 def tokenize(sentence):
@@ -22,8 +25,6 @@ def bag_of_words(tokenized_sentence, all_words):
             bag[idx] = 1.0
         
     return bag
-
-import json
 
 with open("content/intents.json", 'r', encoding='utf-8') as f:
     intents = json.load(f)
@@ -82,7 +83,7 @@ learning_rate = 0.001
 input_size = len(x_train[0])
 hidden_size = 8
 output_size = len(tags)
-print(input_size, output_size)
+# print(input_size, output_size)
 
 class ChatDataset(Dataset):
 
@@ -145,7 +146,7 @@ data = {
 FILE = 'data.pth'
 torch.save(data, FILE)
 
-print(f'training complete')
+# print(f'training complete')
 
 FILE = "data.pth"
 data = torch.load(FILE)
@@ -160,12 +161,9 @@ model_state = data["model_state"]
 model = NeuralNet(input_size, hidden_size, output_size).to(device)
 model.load_state_dict(model_state)
 model.eval()
-def chat_here():
-    bot_name = "iris"
 
-    sentence = input("You: ")
-
-    sentence = tokenize(sentence)
+def chat_here(sent):
+    sentence = tokenize(sent)
     X = bag_of_words(sentence, all_words)
     X = X.reshape(1, X.shape[0])
     X = torch.from_numpy(X).to(device)
@@ -180,8 +178,24 @@ def chat_here():
     if prob.item() > 0.75:
         for intent in intents['intents']:
             if tag == intent["tag"]:
-                print(f"{bot_name}: {random.choice(intent['responses'])}")
+                return(f"{random.choice(intent['responses'])}")
     else:
-        print("I do not understand...")
+        f = open('config.json', 'r')
+        api_key = json.load(f)
 
-chat_here()
+        API_KEY = api_key["api_key"]
+        openai.api_key = API_KEY
+
+        response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=sent,
+        temperature=0,
+        max_tokens=60,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0
+        )
+
+        for i in response['choices']:
+            return(i['text'])
+# chat_here(input("enter the input: "))

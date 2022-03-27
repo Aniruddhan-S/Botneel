@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord.utils import get
 import random
 import json
+from chat import chat_here
 
 f = open('config.json', 'r')
 token = json.load(f)
@@ -26,10 +27,8 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("`Invalid Command`")
 
-
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("`Command incomplete`")
-
 
 # help command embed
 
@@ -56,6 +55,10 @@ async def hi(ctx):
 async def q(ctx):
     reply = ['Yes', 'No']
     await ctx.send(random.choice(reply))
+
+@client.command(aliases=['ai'])
+async def chat(ctx, *, choice):
+    await ctx.send(chat_here(choice))
 
 @client.command(aliases=['cls'])
 @commands.has_permissions(kick_members = True)
