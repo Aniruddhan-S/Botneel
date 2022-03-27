@@ -162,6 +162,7 @@ model = NeuralNet(input_size, hidden_size, output_size).to(device)
 model.load_state_dict(model_state)
 model.eval()
 
+
 def chat_here(sent):
     sentence = tokenize(sent)
     X = bag_of_words(sentence, all_words)
@@ -180,6 +181,7 @@ def chat_here(sent):
             if tag == intent["tag"]:
                 return(f"{random.choice(intent['responses'])}")
     else:
+
         f = open('config.json', 'r')
         api_key = json.load(f)
 
