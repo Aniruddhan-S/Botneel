@@ -39,7 +39,7 @@ async def help(ctx):
 
     em.add_field(name='General Text Commands', value='>>hi\n>>q <question>\n>>clear <value>\n>>tellme <question>\n>>spam <word/line>', inline=False)
     em.add_field(name='Moderator Commands', value='>>kick <@person> (reason)\n>>ban <@person> (reason)\n>>unban <name#number> (reason)\n>>mute <@person> <server/text/voice> (reason)\n>>unmute <@person>\n>>nick <@person> <nickname>\n>>rnick <@person>', inline=False)
-    em.add_field(name='Voice Commands', value='>>join\n>>leave\n>>pull <@person>\n>>push <@person> <vc name>', inline=False)
+    em.add_field(name='Voice Commands', value='>>pull <@person>\n>>push <@person> <vc name>', inline=False)
 
     await ctx.send(embed=em)
 
