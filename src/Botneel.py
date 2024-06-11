@@ -3,12 +3,12 @@ from discord.ext import commands
 from discord.utils import get
 import random
 import json
-from chat import chat_here
 
 f = open('config.json', 'r')
 token = json.load(f)
 
-client = commands.Bot(command_prefix='>>')
+intents = discord.Intents.all()
+client = commands.Bot(command_prefix='>>',intents=intents)
 TOKEN = token["token"]
 client.remove_command('help')
 
@@ -55,10 +55,6 @@ async def hi(ctx):
 async def q(ctx):
     reply = ['Yes', 'No']
     await ctx.send(random.choice(reply))
-
-@client.command(aliases=['ai'])
-async def chat(ctx, *, choice):
-    await ctx.send(chat_here(choice))
 
 @client.command(aliases=['cls'])
 @commands.has_permissions(kick_members = True)
@@ -234,7 +230,5 @@ async def push(ctx, member: discord.Member, *, vc_name=None):
     for channel in ctx.guild.voice_channels:
         if channel.name == vc_name:
             await member.move_to(channel)
-
-
 
 client.run(TOKEN)

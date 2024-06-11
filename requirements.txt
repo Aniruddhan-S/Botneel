@@ -1,4 +1,1 @@
 discord.py
-nltk
-numpy
-torch
